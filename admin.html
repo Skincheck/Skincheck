@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>SkinCheck — Admin</title>
+<style>
+  body { margin:0; font-family:system-ui,sans-serif; background:#f7f9fc; }
+  header { background:#fff; border-bottom:1px solid #e2e8f0; padding:14px 20px;
+           display:flex; justify-content:space-between; align-items:center; }
+  header h1 { font-size:1.1rem; margin:0; color:#2b6cb0; }
+  main { max-width:1000px; margin:0 auto; padding:24px 20px; }
+  .card { background:#fff; border:1px solid #e2e8f0; border-radius:10px; padding:20px; margin-bottom:20px; }
+  .submission { border:1px solid #e2e8f0; border-radius:8px; padding:12px; margin-bottom:14px; }
+  .submission h3 { margin:0 0 8px; font-size:.9rem; color:#1e4e8c; }
+  .submission .meta { font-size:.8rem; color:#4a5568; }
+  .sub-media { display:grid; grid-template-columns:repeat(auto-fill,minmax(120px,1fr)); gap:8px; margin-top:8px; }
+  .sub-media img { width:100%; height:100px; object-fit:cover; border-radius:6px; }
+  .btn { background:#2b6cb0; color:#fff; border:none; padding:8px 16px; border-radius:6px; cursor:pointer; }
+</style>
+</head>
+<body>
+<header>
+  <h1>🩺 SkinCheck — Admin</h1>
+  <div>
+    <span id="userInfo" style="font-size:.85rem;color:#4a5568;"></span>
+    <button class="btn" onclick="logout()" style="margin-left:12px;">Logout</button>
+  </div>
+</header>
+<main>
+  <div class="card">
+    <h2>All user uploads</h2>
+    <div id="allList"></div>
+  </div>
+</main>
+
+<script src="https://identity.netlify.com/v1/netlify-identity-widget.js"></script>
+<script>
+function logout() { netlifyIdentity.logout(); window.location.href = "/login.html"; }
+
+(async () => {
+  if (!window.netlifyIdentity) { window.location.href = "/login.html"; return; }
+  try { await netlifyIdentity.handleAuthCallback(); } catch(e) {}
+  const user = netlifyIdentity.currentUser();
+  if (!user) { window.location.href = "/login.html"; return; }
+  document.getElementById("userInfo").textContent = user.email;
+
+  try {
+    const res = await fetch("/api/list-all");
+    if (res.status === 403) {
+      document.getElementById("allList").innerHTML = "<p>Access denied. Admin role required.</p>";
+      return;
+    }
+    const data = await res.json();
+    renderAll(data);
+  } catch (e) {
+    document.getElementById("allList").innerHTML = "<p>Error loading data.</p>";
+  }
+})();
+
+function renderAll(items) {
+  const box = document.getElementById("allList");
+  if (!items.length) { box.innerHTML = "<p>No uploads yet.</p>"; return; }
+
+  const groups = {};
+  for (const it of items) {
+    const email = it.metadata?.email || "unknown";
+    if (!groups[email]) groups[email] = [];
+    groups[email].push(it);
+  }
+
+  box.innerHTML = Object.entries(groups).map(([email, arr]) => `
+    <div class="submission">
+      <h3>${email}</h3>
+      <div class="meta">${arr.length} upload(s)</div>
+      ${arr.map(it => `
+        <div style="margin-top:8px; padding:8px; border-top:1px dashed #e2e8f0;">
+          <div class="meta">
+            Age: ${it.metadata?.age || "—"} · Itchiness: ${it.metadata?.itchiness || "—"} ·
+            Locations: ${it.metadata?.locations || "—"}
+          </div>
+          <img src="/api/serve?key=${encodeURIComponent(it.key)}"
+               style="width:120px;height:100px;object-fit:cover;border-radius:6px;margin-top:6px;" alt="" />
+        </div>
+      `).join("")}
+    </div>
+  `).join("");
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,23 @@
+[build]
+  publish = "."
+  functions = "netlify/functions"
+
+[[redirects]]
+  from = "/api/upload"
+  to = "/.netlify/functions/upload"
+  status = 200
+
+[[redirects]]
+  from = "/api/list-mine"
+  to = "/.netlify/functions/list-mine"
+  status = 200
+
+[[redirects]]
+  from = "/api/list-all"
+  to = "/.netlify/functions/list-all"
+  status = 200
+
+[[redirects]]
+  from = "/api/serve"
+  to = "/.netlify/functions/serve"
+  status = 200

@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>SkinCheck — Sign In</title>
+<style>
+  body { margin:0; font-family:system-ui,sans-serif; background:#f7f9fc;
+         display:flex; align-items:center; justify-content:center; min-height:100vh; }
+  .box { background:#fff; border:1px solid #e2e8f0; border-radius:12px;
+         padding:40px 32px; max-width:380px; width:100%; text-align:center; }
+  h1 { font-size:1.4rem; color:#2b6cb0; margin:0 0 8px; }
+  p { color:#4a5568; font-size:.9rem; margin:0 0 24px; }
+  button { background:#2b6cb0; color:#fff; border:none; padding:12px 24px;
+           border-radius:8px; font-size:1rem; cursor:pointer; width:100%; }
+  button:hover { background:#1e4e8c; }
+  #msg { margin-top:16px; font-size:.85rem; color:#b7791f; }
+</style>
+</head>
+<body>
+  <div class="box">
+    <h1>🩺 SkinCheck</h1>
+    <p>Sign in with Google to upload skin photos for screening.</p>
+    <button onclick="login()">Sign in with Google</button>
+    <div id="msg"></div>
+  </div>
+  <script src="https://identity.netlify.com/v1/netlify-identity-widget.js"></script>
+  <script>
+    function login() {
+      if (window.netlifyIdentity) netlifyIdentity.open("login");
+      else document.getElementById("msg").textContent = "Identity not loaded. Deploy to Netlify.";
+    }
+    netlifyIdentity.on("login", () => { window.location.href = "/index.html"; });
+    (async () => {
+      if (!window.netlifyIdentity) return;
+      try { await netlifyIdentity.handleAuthCallback(); } catch(e) {}
+      if (netlifyIdentity.currentUser()) window.location.href = "/index.html";
+    })();
+  </script>
+</body>
+</html>

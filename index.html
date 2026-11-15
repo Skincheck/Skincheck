@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>SkinCheck — Upload</title>
+<style>
+  :root { --bg:#f7f9fc; --card:#fff; --primary:#2b6cb0; --primary-dark:#1e4e8c;
+          --text:#1a202c; --muted:#4a5568; --border:#e2e8f0; --warn:#b7791f; --warn-bg:#fefcbf; }
+  *{box-sizing:border-box}
+  body{margin:0;font-family:system-ui,sans-serif;background:var(--bg);color:var(--text);line-height:1.6}
+  header{background:var(--card);border-bottom:1px solid var(--border);padding:14px 20px;
+         display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap}
+  header h1{font-size:1.2rem;margin:0;color:var(--primary)}
+  #userInfo{font-size:.85rem;color:var(--muted)}
+  .btn{background:var(--primary);color:#fff;border:none;padding:10px 20px;border-radius:8px;
+       font-size:1rem;cursor:pointer;margin-top:14px}
+  .btn:disabled{background:#a0aec0;cursor:not-allowed}
+  .btn-secondary{background:transparent;color:var(--primary);border:1px solid var(--primary)}
+  .btn-sm{font-size:.85rem;padding:6px 12px;margin-top:0}
+  main{max-width:860px;margin:0 auto;padding:24px 20px 80px}
+  .card{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:20px;margin-bottom:20px}
+  .card h2{margin-top:0;font-size:1.1rem;color:var(--primary-dark)}
+  .form-row{margin-bottom:16px}
+  .form-row label{display:block;font-size:.9rem;font-weight:500;margin-bottom:6px}
+  .form-row input[type="number"], .form-row select {
+    width:100%; padding:8px; border:1px solid var(--border); border-radius:6px; font-size:1rem;
+  }
+  .checkbox-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(120px,1fr));gap:8px}
+  .checkbox-grid label{display:flex;align-items:center;gap:6px;font-size:.85rem;font-weight:normal;cursor:pointer}
+  .dropzone{border:2px dashed var(--border);border-radius:10px;padding:24px 16px;text-align:center;cursor:pointer}
+  .dropzone:hover{border-color:var(--primary)}
+  .dropzone input{display:none}
+  .preview-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:10px;margin-top:14px}
+  .thumb{position:relative;border:1px solid var(--border);border-radius:8px;overflow:hidden;background:#000}
+  .thumb img{width:100%;height:110px;object-fit:cover;display:block}
+  .thumb .remove{position:absolute;top:4px;right:4px;background:rgba(220,38,38,.9);color:#fff;
+                 border:none;border-radius:50%;width:22px;height:22px;cursor:pointer}
+  .consent{display:flex;gap:10px;align-items:flex-start;margin-top:14px;font-size:.9rem;color:var(--muted)}
+  .disclaimer{background:var(--warn-bg);border-left:4px solid var(--warn);padding:12px 16px;
+              font-size:.9rem;color:#744210;border-radius:6px;margin-top:12px}
+  .history-item{display:flex;gap:12px;align-items:center;padding:10px 0;border-bottom:1px solid var(--border)}
+  .history-item img{width:60px;height:60px;object-fit:cover;border-radius:6px}
+  .history-item .meta{font-size:.8rem;color:var(--muted)}
+  .hidden{display:none!important}
+</style>
+</head>
+<body>
+
+<header>
+  <h1>🩺 SkinCheck</h1>
+  <div style="display:flex;align-items:center;gap:12px;">
+    <span id="userInfo"></span>
+    <button id="adminLink" class="btn btn-secondary btn-sm hidden"
+            onclick="window.location.href='/admin.html'">Admin</button>
+    <button class="btn btn-secondary btn-sm" onclick="logout()">Logout</button>
+  </div>
+</header>
+
+<main>
+  <section class="card">
+    <h2>Patient Information</h2>
+
+    <div class="form-row">
+      <label for="age">Age</label>
+      <input type="number" id="age" min="1" max="120" placeholder="e.g. 28" />
+    </div>
+
+    <div class="form-row">
+      <label for="itchiness">Does it itch?</label>
+      <select id="itchiness">
+        <option value="">-- Select --</option>
+        <option value="No">No</option>
+        <option value="Mild">Mild</option>
+        <option value="Moderate">Moderate</option>
+        <option value="Severe">Severe</option>
+      </select>
+    </div>
+
+    <div class="form-row">
+      <label>Location(s) on the body (select all that apply)</label>
+      <div class="checkbox-grid" id="locationGrid">
+        <label><input type="checkbox" value="Mouth" /> Mouth</label>
+        <label><input type="checkbox" value="Face" /> Face</label>
+        <label><input type="checkbox" value="Neck" /> Neck</label>
+        <label><input type="checkbox" value="Chest" /> Chest</label>
+        <label><input type="checkbox" value="Back" /> Back</label>
+        <label><input type="checkbox" value="Abdomen" /> Abdomen</label>
+        <label><input type="checkbox" value="Arms" /> Arms</label>
+        <label><input type="checkbox" value="Hands" /> Hands</label>
+        <label><input type="checkbox" value="Legs" /> Legs</label>
+        <label><input type="checkbox" value="Feet" /> Feet</label>
+        <label><input type="checkbox" value="Genital" /> Genital</label>
+        <label><input type="checkbox" value="Scalp" /> Scalp</label>
+        <label><input type="checkbox" value="Other" /> Other</label>
+      </div>
+    </div>
+
+    <div class="form-row">
+      <label>Skin photo(s)</label>
+      <div class="dropzone" onclick="document.getElementById('fileInput').click()">
+        <input type="file" id="fileInput" accept="image/*" multiple />
+        <p>Click or drag images here (max ~4 MB each)</p>
+      </div>
+      <div class="preview-grid" id="previewGrid"></div>
+    </div>
+
+    <label class="consent">
+      <input type="checkbox" id="consent" />
+      <span>I understand this image will be stored and reviewed by an administrator. This is not a medical diagnosis.</span>
+    </label>
+
+    <button class="btn" id="uploadBtn" disabled>Upload & Analyze</button>
+    <div class="disclaimer">
+      This is a preliminary screening result only. Please consult a dermatologist.
+    </div>
+  </section>
+
+  <section class="card">
+    <h2>My uploads</h2>
+    <div id="historyList"></div>
+  </section>
+</main>
+
+<script src="https://identity.netlify.com/v1/netlify-identity-widget.js"></script>
+<script>
+let currentUser = null;
+let selectedFiles = [];
+
+function logout() { netlifyIdentity.logout(); window.location.href = "/login.html"; }
+
+(async () => {
+  if (!window.netlifyIdentity) { window.location.href = "/login.html"; return; }
+  try { await netlifyIdentity.handleAuthCallback(); } catch(e) {}
+  currentUser = netlifyIdentity.currentUser();
+  if (!currentUser) { window.location.href = "/login.html"; return; }
+  document.getElementById("userInfo").textContent = currentUser.email;
+  if (currentUser.app_metadata?.roles?.includes("admin")) {
+    document.getElementById("adminLink").classList.remove("hidden");
+  }
+  loadHistory();
+})();
+
+document.getElementById("fileInput").addEventListener("change", e => {
+  selectedFiles = [...e.target.files].filter(f => f.type.startsWith("image/"));
+  renderPreview();
+  updateBtn();
+});
+document.getElementById("consent").addEventListener("change", updateBtn);
+
+function renderPreview() {
+  document.getElementById("previewGrid").innerHTML = selectedFiles.map((f, i) => `
+    <div class="thumb">
+      <img src="${URL.createObjectURL(f)}" alt="" />
+      <button class="remove" onclick="removeFile(${i})">×</button>
+    </div>
+  `).join("");
+}
+function removeFile(i) { selectedFiles.splice(i, 1); renderPreview(); updateBtn(); }
+function updateBtn() {
+  document.getElementById("uploadBtn").disabled = !(document.getElementById("consent").checked && selectedFiles.length);
+}
+
+document.getElementById("uploadBtn").addEventListener("click", async () => {
+  const btn = document.getElementById("uploadBtn");
+  btn.disabled = true;
+  btn.textContent = "Uploading…";
+
+  const age = document.getElementById("age").value;
+  const itchiness = document.getElementById("itchiness").value;
+  const checkedLocations = [...document.querySelectorAll("#locationGrid input:checked")].map(cb => cb.value);
+
+  for (const file of selectedFiles) {
+    if (file.size > 4.5 * 1024 * 1024) { alert(`${file.name} is too large (max ~4.5 MB)`); continue; }
+    const fd = new FormData();
+    fd.append("image", file);
+    fd.append("age", age);
+    fd.append("itchiness", itchiness);
+    checkedLocations.forEach(loc => fd.append("locations", loc));
+    try {
+      const res = await fetch("/api/upload", { method: "POST", body: fd });
+      const data = await res.json();
+      if (!res.ok) alert(data.error || "Upload failed");
+    } catch (e) { alert("Upload error: " + e.message); }
+  }
+
+  btn.disabled = false;
+  btn.textContent = "Upload & Analyze";
+  selectedFiles = [];
+  renderPreview();
+  updateBtn();
+  loadHistory();
+});
+
+async function loadHistory() {
+  try {
+    const res = await fetch("/api/list-mine");
+    if (!res.ok) return;
+    const data = await res.json();
+    const box = document.getElementById("historyList");
+    if (!data.length) { box.innerHTML = "<p>No uploads yet.</p>"; return; }
+    box.innerHTML = data.map(item => `
+      <div class="history-item">
+        <img src="/api/serve?key=${encodeURIComponent(item.key)}" alt="" />
+        <div>
+          <div><strong>Age: ${item.metadata?.age || "—"} · Itchiness: ${item.metadata?.itchiness || "—"}</strong></div>
+          <div class="meta">Locations: ${item.metadata?.locations || "—"}</div>
+          <div class="meta">${new Date(item.metadata?.uploadedAt || Date.now()).toLocaleString()}</div>
+        </div>
+      </div>
+    `).join("");
+  } catch (e) {}
+}
+</script>
+</body>
+</html>
